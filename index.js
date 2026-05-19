@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 dotenv.config();
 
 const uri = process.env.MONGODB_URI;
@@ -23,13 +23,34 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
-    const db = client.db('rentify-cars')
-    const carCollection = db.collection('car-collection')
+    const db = client.db("rentify-cars");
+    const carCollection = db.collection("car-collection");
 
+    app.get("/car-collection", async (req, res) => {
+      const result = await carCollection.find().toArray();
+      res.json(result);
+    });
 
+    app.get("/car-collection/:userId", async (req, res) => {
+      const { userId } = req.params;
+      const result = await carCollection.find({ userId: userId }).toArray();
+      res.json(result);
+    });
 
+    app.delete("/car-collection/:userId", async (req, res) => {
+      const { userId } = req.params;
+      const result = await carCollection.deleteOne({
+        _id: new ObjectId(userId),
+      });
+      res.json(result);
+    });
 
-
+    app.post("/car-collection", async (req, res) => {
+      const desData = req.body;
+      console.log(desData);
+      const result = await carCollection.insertOne(desData);
+      res.json(result);
+    });
 
     await client.db("admin").command({ ping: 1 });
     console.log(
