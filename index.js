@@ -39,7 +39,7 @@ const verifyToken = async (req, res, next) => {
 
   try {
     const { payload } = await jwtVerify(token, JWKS);
-    console.log(payload)
+    console.log(payload);
     next();
   } catch (error) {
     return res.status(401).json({
@@ -57,6 +57,25 @@ async function run() {
 
     app.get("/car-collection", async (req, res) => {
       const result = await carCollection.find().toArray();
+      res.json(result);
+    });
+    app.get("/search-cars", async (req, res) => {
+      const search = req.query.search || "";
+      const type = req.query.type || "";
+
+      let query = {
+        carName: {
+          $regex: search,
+          $options: "i",
+        },
+      };
+
+      if (type) {
+        query.type = type;
+      }
+
+      const result = await carCollection.find(query).toArray();
+
       res.json(result);
     });
     app.get("/car-collection/:id", verifyToken, async (req, res) => {
