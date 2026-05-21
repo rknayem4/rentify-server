@@ -117,11 +117,34 @@ async function run() {
       res.json(result);
     });
 
+    // app.post("/car-booking-collection", async (req, res) => {
+    //   const desData = req.body;
+    //   console.log(desData);
+    //   const result = await carBookingCollection.insertOne(desData);
+    //   res.json(result);
+    // });
     app.post("/car-booking-collection", async (req, res) => {
-      const desData = req.body;
-      console.log(desData);
-      const result = await carBookingCollection.insertOne(desData);
-      res.json(result);
+      const bookingData = req.body;
+
+      // booking save
+      const bookingResult = await carBookingCollection.insertOne(bookingData);
+
+      // booking count increase
+      await carCollection.updateOne(
+        {
+          _id: new ObjectId(bookingData.carId),
+        },
+        {
+          $inc: {
+            bookingCount: 1,
+          },
+        },
+      );
+
+      res.json({
+        bookingResult,
+        success: true,
+      });
     });
 
     app.get("/car-booking-collection/:userId", async (req, res) => {
@@ -144,7 +167,6 @@ async function run() {
       "Pinged your deployment. You successfully connected to MongoDB!",
     );
   } finally {
-    // Ensures that the client will close when you finish/error
     // await client.close();
   }
 }
