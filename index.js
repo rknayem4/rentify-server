@@ -78,6 +78,7 @@ async function run() {
 
       res.json(result);
     });
+
     app.get("/car-collection/:id", verifyToken, async (req, res) => {
       const { id } = req.params;
       const result = await carCollection.findOne({
@@ -86,20 +87,20 @@ async function run() {
       res.json(result);
     });
 
-    app.get("/my-car-collection/:userId", async (req, res) => {
+    app.get("/my-car-collection/:userId", verifyToken, async (req, res) => {
       const { userId } = req.params;
       const result = await carCollection.find({ userId: userId }).toArray();
       res.json(result);
     });
 
-    app.delete("/car-collection/:userId", async (req, res) => {
+    app.delete("/car-collection/:userId", verifyToken, async (req, res) => {
       const { userId } = req.params;
       const result = await carCollection.deleteOne({
         _id: new ObjectId(userId),
       });
       res.json(result);
     });
-    app.patch("/car-collection/:id", async (req, res) => {
+    app.patch("/car-collection/:id", verifyToken, async (req, res) => {
       const { id } = req.params;
       const updateData = req.body;
       console.log(updateData);
@@ -110,7 +111,7 @@ async function run() {
       res.json(result);
     });
 
-    app.post("/car-collection", verifyToken, async (req, res) => {
+    app.post("/car-collection", async (req, res) => {
       const desData = req.body;
       console.log(desData);
       const result = await carCollection.insertOne(desData);
@@ -123,7 +124,7 @@ async function run() {
     //   const result = await carBookingCollection.insertOne(desData);
     //   res.json(result);
     // });
-    app.post("/car-booking-collection", async (req, res) => {
+    app.post("/car-booking-collection", verifyToken, async (req, res) => {
       const bookingData = req.body;
 
       // booking save
@@ -147,20 +148,27 @@ async function run() {
       });
     });
 
-    app.get("/car-booking-collection/:userId", async (req, res) => {
-      const { userId } = req.params;
-      const result = await carBookingCollection
-        .find({ userId: userId })
-        .toArray();
-      res.json(result);
-    });
-    app.delete("/car-booking-collection/:userId", async (req, res) => {
-      const { userId } = req.params;
-      const result = await carBookingCollection.deleteOne({
-        _id: new ObjectId(userId),
-      });
-      res.json(result);
-    });
+    app.get(
+      "/car-booking-collection/:userId",
+      verifyToken,
+      async (req, res) => {
+        const { userId } = req.params;
+        const result = await carBookingCollection
+          .find({ userId: userId })
+          .toArray();
+        res.json(result);
+      },
+    );
+    app.delete(
+      "/car-booking-collection/:userId",
+      async (req, res) => {
+        const { userId } = req.params;
+        const result = await carBookingCollection.deleteOne({
+          _id: new ObjectId(userId),
+        });
+        res.json(result);
+      },
+    );
 
     await client.db("admin").command({ ping: 1 });
     console.log(
